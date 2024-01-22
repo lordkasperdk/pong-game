@@ -148,23 +148,23 @@
     }
 
     function movePaddles() {
-      document.addEventListener('mousemove', (event) => {
-        leftPaddleY = event.clientY - document.body.getBoundingClientRect().top - 50;
-        rightPaddleY = event.clientY - document.body.getBoundingClientRect().top - 50;
-
-        if (leftPaddleY < 0) {
-          leftPaddleY = 0;
-        } else if (leftPaddleY > 300) {
-          leftPaddleY = 300;
-        }
-
-        if (rightPaddleY < 0) {
-          rightPaddleY = 0;
-        } else if (rightPaddleY > 300) {
-          rightPaddleY = 300;
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'w' && leftPaddleY > 0) {
+          leftPaddleY -= 10;
+        } else if (event.key === 's' && leftPaddleY < 300) {
+          leftPaddleY += 10;
         }
 
         leftPaddle.style.top = leftPaddleY + 'px';
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowUp' && rightPaddleY > 0) {
+          rightPaddleY -= 10;
+        } else if (event.key === 'ArrowDown' && rightPaddleY < 300) {
+          rightPaddleY += 10;
+        }
+
         rightPaddle.style.top = rightPaddleY + 'px';
       });
     }
