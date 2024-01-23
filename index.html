@@ -170,6 +170,29 @@
       } else if (event.key === 's') {
         leftPaddleSpeed = 5;
       }
+    });
 
+    document.addEventListener('keyup', (event) => {
+      if (event.key === 'w' || event.key === 's') {
+        leftPaddleSpeed = 0;
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
       if (event.key === 'ArrowUp') {
-        right
+        rightPaddleSpeed = -5;
+      } else if (event.key === 'ArrowDown') {
+        rightPaddleSpeed = 5;
+      }
+    });
+
+    document.addEventListener('keyup', (event) => {
+      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        rightPaddleSpeed = 0;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>
