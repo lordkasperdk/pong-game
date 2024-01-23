@@ -150,13 +150,9 @@
         if (ballX < 0) {
           rightScore++;
           checkWinner();
-          gamePaused = true;
-          displayWinner('Venstre');
         } else if (ballX > 600) {
           leftScore++;
           checkWinner();
-          gamePaused = true;
-          displayWinner('Højre');
         }
 
         ball.style.left = ballX + 'px';
@@ -192,6 +188,7 @@
 
     function checkWinner() {
       if (leftScore === 10 || rightScore === 10) {
+        gamePaused = true;
         displayWinner(leftScore === 10 ? 'Venstre' : 'Højre');
       }
     }
