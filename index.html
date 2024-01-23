@@ -74,6 +74,16 @@
     #rightScore {
       margin-left: 10px;
     }
+
+    .message-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      font-size: 36px;
+      color: #fff;
+    }
   </style>
   <title>Pong Game</title>
 </head>
@@ -90,12 +100,14 @@
       <span id="leftScore">0</span> - <span id="rightScore">0</span>
     </div>
   </div>
+  <div class="message-container" id="messageContainer"></div>
   <script>
     const ball = document.querySelector('.ball');
     const leftPaddle = document.getElementById('leftPaddle');
     const rightPaddle = document.getElementById('rightPaddle');
     const leftScoreDisplay = document.getElementById('leftScore');
     const rightScoreDisplay = document.getElementById('rightScore');
+    const messageContainer = document.getElementById('messageContainer');
 
     let ballX = 300;
     let ballY = 200;
@@ -128,9 +140,11 @@
       // Ball out of bounds
       if (ballX < 0) {
         rightScore++;
+        checkWinner();
         resetBall();
       } else if (ballX > 600) {
         leftScore++;
+        checkWinner();
         resetBall();
       }
 
@@ -162,6 +176,19 @@
     function updateScore() {
       leftScoreDisplay.textContent = leftScore;
       rightScoreDisplay.textContent = rightScore;
+    }
+
+    function checkWinner() {
+      if (leftScore === 10) {
+        displayWinner('Venstre');
+      } else if (rightScore === 10) {
+        displayWinner('Højre');
+      }
+    }
+
+    function displayWinner(player) {
+      messageContainer.textContent = `Tillykke! ${player} vandt!`;
+      messageContainer.style.display = 'block';
     }
 
     document.addEventListener('keydown', (event) => {
