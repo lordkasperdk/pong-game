@@ -35,8 +35,6 @@
       height: 20px;
       background-color: #fff;
       border-radius: 50%;
-      left: 50%;
-      top: 50%;
       transform: translate(-50%, -50%);
     }
 
@@ -101,10 +99,12 @@
 
     let ballX = 300;
     let ballY = 200;
-    let ballSpeedX = 5;
-    let ballSpeedY = 5;
+    let ballSpeedX = 3;
+    let ballSpeedY = 3;
     let leftPaddleY = 150;
     let rightPaddleY = 150;
+    let leftPaddleSpeed = 0;
+    let rightPaddleSpeed = 0;
     let leftScore = 0;
     let rightScore = 0;
 
@@ -148,25 +148,15 @@
     }
 
     function movePaddles() {
-      document.addEventListener('keydown', (event) => {
-        if (event.key === 'w' && leftPaddleY > 0) {
-          leftPaddleY -= 10;
-        } else if (event.key === 's' && leftPaddleY < 300) {
-          leftPaddleY += 10;
-        }
+      leftPaddleY += leftPaddleSpeed;
+      rightPaddleY += rightPaddleSpeed;
 
-        leftPaddle.style.top = leftPaddleY + 'px';
-      });
+      // Ensure paddles stay within bounds
+      leftPaddleY = Math.max(Math.min(leftPaddleY, 300), 0);
+      rightPaddleY = Math.max(Math.min(rightPaddleY, 300), 0);
 
-      document.addEventListener('keydown', (event) => {
-        if (event.key === 'ArrowUp' && rightPaddleY > 0) {
-          rightPaddleY -= 10;
-        } else if (event.key === 'ArrowDown' && rightPaddleY < 300) {
-          rightPaddleY += 10;
-        }
-
-        rightPaddle.style.top = rightPaddleY + 'px';
-      });
+      leftPaddle.style.top = leftPaddleY + 'px';
+      rightPaddle.style.top = rightPaddleY + 'px';
     }
 
     function updateScore() {
@@ -174,7 +164,14 @@
       rightScoreDisplay.textContent = rightScore;
     }
 
-    update();
-  </script>
-</body>
-</html>
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'w') {
+        leftPaddleSpeed = -5;
+      } else if (event.key === 's') {
+        leftPaddleSpeed = 5;
+      }
+
+      if (event.key === 'ArrowUp') {
+        rightPaddleSpeed = -5;
+      } else if (event.key === 'ArrowDown') {
+        right
