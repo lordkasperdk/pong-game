@@ -74,6 +74,29 @@
     #rightScore {
       margin-left: 10px;
     }
+
+    .controls-container {
+      position: absolute;
+      top: 10px;
+      left: 620px;
+      width: 200px;
+      padding: 10px;
+      background-color: #333;
+      border: 2px solid #fff;
+      border-radius: 5px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #fff;
+    }
+
+    input {
+      width: 100%;
+      padding: 5px;
+      box-sizing: border-box;
+    }
   </style>
   <title>Pong Game</title>
 </head>
@@ -90,17 +113,22 @@
       <span id="leftScore">0</span> - <span id="rightScore">0</span>
     </div>
   </div>
+  <div class="controls-container">
+    <label for="speedRange">Boldens hastighed:</label>
+    <input type="range" id="speedRange" min="1" max="10" value="5">
+  </div>
   <script>
     const ball = document.querySelector('.ball');
     const leftPaddle = document.getElementById('leftPaddle');
     const rightPaddle = document.getElementById('rightPaddle');
     const leftScoreDisplay = document.getElementById('leftScore');
     const rightScoreDisplay = document.getElementById('rightScore');
+    const speedRange = document.getElementById('speedRange');
 
     let ballX = 300;
     let ballY = 200;
-    let ballSpeedX = 5;
-    let ballSpeedY = 5;
+    let ballSpeedX = parseFloat(speedRange.value);
+    let ballSpeedY = parseFloat(speedRange.value);
     let leftPaddleY = 150;
     let rightPaddleY = 150;
     let leftPaddleSpeed = 0;
@@ -163,6 +191,13 @@
       leftScoreDisplay.textContent = leftScore;
       rightScoreDisplay.textContent = rightScore;
     }
+
+    function updateSpeed() {
+      ballSpeedX = parseFloat(speedRange.value);
+      ballSpeedY = parseFloat(speedRange.value);
+    }
+
+    speedRange.addEventListener('input', updateSpeed);
 
     document.addEventListener('keydown', (event) => {
       if (event.key === 'w') {
