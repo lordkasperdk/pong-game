@@ -11,6 +11,7 @@
       height: 100vh;
       margin: 0;
       background-color: #111;
+      color: #fff;
     }
 
     .game-container {
@@ -65,15 +66,27 @@
       display: flex;
       align-items: center;
       font-size: 24px;
-      color: #fff;
     }
 
     #leftScore {
       margin-right: 10px;
+      color: red;
     }
 
     #rightScore {
       margin-left: 10px;
+      color: blue;
+    }
+
+    .info-container {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .info {
+      font-size: 18px;
     }
   </style>
   <title>Pong Game</title>
@@ -91,13 +104,19 @@
       <span id="leftScore">0</span> - <span id="rightScore">0</span>
     </div>
   </div>
+  <div class="info-container">
+    <div class="info">
+      Press 'M' to toggle game mode (Infinite / Standard)
+    </div>
+  </div>
   <script>
     const ball = document.querySelector('.ball');
     const leftPaddle = document.getElementById('leftPaddle');
     const rightPaddle = document.getElementById('rightPaddle');
     const leftScoreDisplay = document.getElementById('leftScore');
     const rightScoreDisplay = document.getElementById('rightScore');
-
+    const infoContainer = document.querySelector('.info-container');
+    
     let ballX = 300;
     let ballY = 200;
     let ballSpeedX = 5;
@@ -108,15 +127,10 @@
     let rightPaddleSpeed = 0;
     let leftScore = 0;
     let rightScore = 0;
-    let gamePaused = false;
-
+    let gameMode = 'Standard'; // Default game mode
+    
     function update() {
-      if (gamePaused) {
-        setTimeout(() => {
-          gamePaused = false;
-          resetBall();
-        }, 5000);
-      } else {
+      if (gameMode === 'Standard') {
         ballX += ballSpeedX;
         ballY += ballSpeedY;
 
@@ -137,7 +151,6 @@
         if (ballX < 0) {
           rightScore++;
           if (rightScore >= 10) {
-            gamePaused = true;
             alert("Blue player wins!");
             rightScore = 0;
             leftScore = 0;
@@ -146,20 +159,42 @@
         } else if (ballX > 600) {
           leftScore++;
           if (leftScore >= 10) {
-            gamePaused = true;
             alert("Red player wins!");
             rightScore = 0;
             leftScore = 0;
           }
           resetBall();
         }
+      } else {
+        ballX += ballSpeedX;
+        ballY += ballSpeedY;
 
-        ball.style.left = ballX + 'px';
-        ball.style.top = ballY + 'px';
+        // Ball collision with walls
+        if (ballY < 0 || ballY > 380) {
+          ballSpeedY = -ballSpeedY;
+        }
 
-        movePaddles();
-        updateScore();
+        // Ball collision with paddles
+        if (
+          (ballX <= 20 && ballY > leftPaddleY && ballY < leftPaddleY + 100) ||
+          (ballX >= 560 && ballY > rightPaddleY && ballY < rightPaddleY + 100)
+        ) {
+          ballSpeedX = -ballSpeedX;
+        }
+
+        // Ball out of bounds
+        if (ballX < 0) {
+          resetBall();
+        } else if (ballX > 600) {
+          resetBall();
+        }
       }
+
+      ball.style.left = ballX + 'px';
+      ball.style.top = ballY + 'px';
+
+      movePaddles();
+      updateScore();
       requestAnimationFrame(update);
     }
 
@@ -212,6 +247,17 @@
         rightPaddleSpeed = 0;
       }
     });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'm' || event.key === 'M') {
+        toggleGameMode();
+      }
+    });
+
+    function toggleGameMode() {
+      gameMode = gameMode === 'Standard' ? 'Infinite' : 'Standard';
+      infoContainer.innerHTML = `<div class="info">Game Mode: ${gameMode}</div>`;
+    }
 
     update();
   </script>
