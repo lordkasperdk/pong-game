@@ -130,27 +130,64 @@
     let gameMode = 'Standard'; // Default game mode
     
     function update() {
-      ballX += ballSpeedX;
-      ballY += ballSpeedY;
+      if (gameMode === 'Standard') {
+        ballX += ballSpeedX;
+        ballY += ballSpeedY;
 
-      // Ball collision with walls
-      if (ballY < 0 || ballY > 380) {
-        ballSpeedY = -ballSpeedY;
-      }
+        // Ball collision with walls
+        if (ballY < 0 || ballY > 380) {
+          ballSpeedY = -ballSpeedY;
+        }
 
-      // Ball collision with paddles
-      if (
-        (ballX <= 20 && ballY > leftPaddleY && ballY < leftPaddleY + 100) ||
-        (ballX >= 560 && ballY > rightPaddleY && ballY < rightPaddleY + 100)
-      ) {
-        ballSpeedX = -ballSpeedX;
-      }
+        // Ball collision with paddles
+        if (
+          (ballX <= 20 && ballY > leftPaddleY && ballY < leftPaddleY + 100) ||
+          (ballX >= 560 && ballY > rightPaddleY && ballY < rightPaddleY + 100)
+        ) {
+          ballSpeedX = -ballSpeedX;
+        }
 
-      // Ball out of bounds
-      if (ballX < 0) {
-        resetBall();
-      } else if (ballX > 600) {
-        resetBall();
+        // Ball out of bounds
+        if (ballX < 0) {
+          rightScore++;
+          if (rightScore >= 10) {
+            alert("Blue player wins!");
+            rightScore = 0;
+            leftScore = 0;
+          }
+          resetBall();
+        } else if (ballX > 600) {
+          leftScore++;
+          if (leftScore >= 10) {
+            alert("Red player wins!");
+            rightScore = 0;
+            leftScore = 0;
+          }
+          resetBall();
+        }
+      } else {
+        ballX += ballSpeedX;
+        ballY += ballSpeedY;
+
+        // Ball collision with walls
+        if (ballY < 0 || ballY > 380) {
+          ballSpeedY = -ballSpeedY;
+        }
+
+        // Ball collision with paddles
+        if (
+          (ballX <= 20 && ballY > leftPaddleY && ballY < leftPaddleY + 100) ||
+          (ballX >= 560 && ballY > rightPaddleY && ballY < rightPaddleY + 100)
+        ) {
+          ballSpeedX = -ballSpeedX;
+        }
+
+        // Ball out of bounds
+        if (ballX < 0) {
+          resetBall();
+        } else if (ballX > 600) {
+          resetBall();
+        }
       }
 
       ball.style.left = ballX + 'px';
