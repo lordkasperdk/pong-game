@@ -147,7 +147,15 @@
       }
 
       // Ball out of bounds
-      if (ballX < 0) {
+      if (ballX < 0 && gameMode === 'Standard') {
+        rightScore++;
+        if (rightScore >= 10) {
+          alert("Blue player wins!");
+          rightScore = 0;
+          leftScore = 0;
+        }
+        resetBall();
+      } else if (ballX > 600 && gameMode === 'Standard') {
         leftScore++;
         if (leftScore >= 10) {
           alert("Red player wins!");
@@ -155,13 +163,7 @@
           leftScore = 0;
         }
         resetBall();
-      } else if (ballX > 600) {
-        rightScore++;
-        if (rightScore >= 10) {
-          alert("Blue player wins!");
-          rightScore = 0;
-          leftScore = 0;
-        }
+      } else if (gameMode === 'Infinite' && (ballX < 0 || ballX > 600)) {
         resetBall();
       }
 
