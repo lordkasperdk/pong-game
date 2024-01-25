@@ -106,7 +106,7 @@
   </div>
   <div class="info-container">
     <div class="info">
-      Press 'M' to toggle game mode (Infinite / Standard)
+      Press 'M' to toggle game mode (training / Standard)
     </div>
   </div>
   <script>
@@ -163,7 +163,7 @@
           leftScore = 0;
         }
         resetBall();
-      } else if (gameMode === 'Infinite' && (ballX < 0 || ballX > 600)) {
+      } else if (gameMode === 'training' && (ballX < 0 || ballX > 600)) {
         resetBall();
       }
 
@@ -232,7 +232,7 @@
     });
 
     function toggleGameMode() {
-      gameMode = gameMode === 'Standard' ? 'Infinite' : 'Standard';
+      gameMode = gameMode === 'Standard' ? 'training' : 'Standard';
       infoContainer.innerHTML = `<div class="info">Game Mode: ${gameMode}</div>`;
     }
 
