@@ -33,9 +33,9 @@
       position: absolute;
       width: 20px;
       height: 20px;
-      background-color: #fff;
       border-radius: 50%;
       transform: translate(-50%, -50%);
+      background-color: #fff;
     }
 
     .paddle {
@@ -47,10 +47,12 @@
 
     #leftPaddle {
       left: 0;
+      background-color: red;
     }
 
     #rightPaddle {
       right: 0;
+      background-color: blue;
     }
 
     .score-container {
@@ -74,6 +76,17 @@
     #rightScore {
       margin-left: 10px;
     }
+
+    .message-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      font-size: 36px;
+      color: #fff;
+      text-align: center;
+    }
   </style>
   <title>Pong Game</title>
 </head>
@@ -90,12 +103,14 @@
       <span id="leftScore">0</span> - <span id="rightScore">0</span>
     </div>
   </div>
+  <div class="message-container" id="messageContainer"></div>
   <script>
     const ball = document.querySelector('.ball');
     const leftPaddle = document.getElementById('leftPaddle');
     const rightPaddle = document.getElementById('rightPaddle');
     const leftScoreDisplay = document.getElementById('leftScore');
     const rightScoreDisplay = document.getElementById('rightScore');
+    const messageContainer = document.getElementById('messageContainer');
 
     let ballX = 300;
     let ballY = 200;
@@ -105,40 +120,54 @@
     let rightPaddleY = 150;
     let leftPaddleSpeed = 0;
     let rightPaddleSpeed = 0;
-let leftScore = 0;
-let rightScore = 0;
+    let leftScore = 0;
+    let rightScore = 0;
+    let gamePaused = false;
+
     function update() {
-      ballX += ballSpeedX;
-      ballY += ballSpeedY;
+      if (gamePaused) {
+        setTimeout(() => {
+          gamePaused = false;
+          messageContainer.style.display = 'none';
+          resetBall();
+        }, 5000);
+      } else {
+        ballX += ballSpeedX;
+        ballY += ballSpeedY;
 
-      // Ball collision with walls
-      if (ballY < 0 || ballY > 380) {
-        ballSpeedY = -ballSpeedY;
+        // Ball collision with walls
+        if (ballY < 0 || ballY > 380) {
+          ballSpeedY = -ballSpeedY;
+        }
+
+        // Ball collision with paddles
+        if (
+          (ballX <= 20 && ballY > leftPaddleY && ballY < leftPaddleY + 100) ||
+          (ballX >= 560 && ballY > rightPaddleY && ballY < rightPaddleY + 100)
+        ) {
+          ballSpeedX = -ballSpeedX;
+        }
+
+        // Ball out of bounds
+        if (ballX < 0) {
+          rightScore++;
+          checkWinner();
+          gamePaused = true;
+          displayWinner('Venstre');
+        } else if (ballX > 600) {
+          leftScore++;
+          checkWinner();
+          gamePaused = true;
+          displayWinner('Højre');
+        }
+
+        ball.style.left = ballX + 'px';
+        ball.style.top = ballY + 'px';
+
+        movePaddles();
+        updateScore();
+        requestAnimationFrame(update);
       }
-
-      // Ball collision with paddles
-      if (
-        (ballX <= 20 && ballY > leftPaddleY && ballY < leftPaddleY + 100) ||
-        (ballX >= 560 && ballY > rightPaddleY && ballY < rightPaddleY + 100)
-      ) {
-        ballSpeedX = -ballSpeedX;
-      }
-
-      // Ball out of bounds
-      if (ballX < 0) {
-        rightScore++;
-        resetBall();
-      } else if (ballX > 600) {
-        leftScore++;
-        resetBall();
-      }
-
-      ball.style.left = ballX + 'px';
-      ball.style.top = ballY + 'px';
-
-      movePaddles();
-      updateScore();
-      requestAnimationFrame(update);
     }
 
     function resetBall() {
@@ -161,6 +190,18 @@ let rightScore = 0;
     function updateScore() {
       leftScoreDisplay.textContent = leftScore;
       rightScoreDisplay.textContent = rightScore;
+    }
+
+    function checkWinner() {
+      if (leftScore === 10 || rightScore === 10) {
+        gamePaused = true;
+        displayWinner(leftScore === 10 ? 'Venstre' : 'Højre');
+      }
+    }
+
+    function displayWinner(player) {
+      messageContainer.textContent = `Tillykke! ${player} vandt!`;
+      messageContainer.style.display = 'block';
     }
 
     document.addEventListener('keydown', (event) => {
