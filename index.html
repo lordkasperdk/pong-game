@@ -130,25 +130,25 @@
     let gameMode = 'Standard'; // Default game mode
     
     function update() {
-      if (gameMode === 'Standard') {
-        ballX += ballSpeedX;
-        ballY += ballSpeedY;
+      ballX += ballSpeedX;
+      ballY += ballSpeedY;
 
-        // Ball collision with walls
-        if (ballY < 0 || ballY > 380) {
-          ballSpeedY = -ballSpeedY;
-        }
+      // Ball collision with walls
+      if (ballY < 0 || ballY > 380) {
+        ballSpeedY = -ballSpeedY;
+      }
 
-        // Ball collision with paddles
-        if (
-          (ballX <= 20 && ballY > leftPaddleY && ballY < leftPaddleY + 100) ||
-          (ballX >= 560 && ballY > rightPaddleY && ballY < rightPaddleY + 100)
-        ) {
-          ballSpeedX = -ballSpeedX;
-        }
+      // Ball collision with paddles
+      if (
+        (ballX <= 20 && ballY > leftPaddleY && ballY < leftPaddleY + 100) ||
+        (ballX >= 560 && ballY > rightPaddleY && ballY < rightPaddleY + 100)
+      ) {
+        ballSpeedX = -ballSpeedX;
+      }
 
-        // Ball out of bounds
-        if (ballX < 0) {
+      // Ball out of bounds
+      if (ballX < 0) {
+        if (gameMode === 'Standard') {
           rightScore++;
           if (rightScore >= 10) {
             alert("Blue player wins!");
@@ -156,7 +156,13 @@
             leftScore = 0;
           }
           resetBall();
-        } else if (ballX > 600) {
+        } else {
+          rightScore++;
+          updateScore();
+          resetBall();
+        }
+      } else if (ballX > 600) {
+        if (gameMode === 'Standard') {
           leftScore++;
           if (leftScore >= 10) {
             alert("Red player wins!");
@@ -164,28 +170,9 @@
             leftScore = 0;
           }
           resetBall();
-        }
-      } else {
-        ballX += ballSpeedX;
-        ballY += ballSpeedY;
-
-        // Ball collision with walls
-        if (ballY < 0 || ballY > 380) {
-          ballSpeedY = -ballSpeedY;
-        }
-
-        // Ball collision with paddles
-        if (
-          (ballX <= 20 && ballY > leftPaddleY && ballY < leftPaddleY + 100) ||
-          (ballX >= 560 && ballY > rightPaddleY && ballY < rightPaddleY + 100)
-        ) {
-          ballSpeedX = -ballSpeedX;
-        }
-
-        // Ball out of bounds
-        if (ballX < 0) {
-          resetBall();
-        } else if (ballX > 600) {
+        } else {
+          leftScore++;
+          updateScore();
           resetBall();
         }
       }
@@ -194,7 +181,6 @@
       ball.style.top = ballY + 'px';
 
       movePaddles();
-      updateScore();
       requestAnimationFrame(update);
     }
 
