@@ -148,39 +148,28 @@
 
       // Ball out of bounds
       if (ballX < 0) {
-        if (gameMode === 'Standard') {
-          rightScore++;
-          if (rightScore >= 10) {
-            alert("Blue player wins!");
-            rightScore = 0;
-            leftScore = 0;
-          }
-          resetBall();
-        } else {
-          rightScore++;
-          updateScore();
-          resetBall();
+        leftScore++;
+        if (leftScore >= 10) {
+          alert("Red player wins!");
+          rightScore = 0;
+          leftScore = 0;
         }
+        resetBall();
       } else if (ballX > 600) {
-        if (gameMode === 'Standard') {
-          leftScore++;
-          if (leftScore >= 10) {
-            alert("Red player wins!");
-            rightScore = 0;
-            leftScore = 0;
-          }
-          resetBall();
-        } else {
-          leftScore++;
-          updateScore();
-          resetBall();
+        rightScore++;
+        if (rightScore >= 10) {
+          alert("Blue player wins!");
+          rightScore = 0;
+          leftScore = 0;
         }
+        resetBall();
       }
 
       ball.style.left = ballX + 'px';
       ball.style.top = ballY + 'px';
 
       movePaddles();
+      updateScore();
       requestAnimationFrame(update);
     }
 
