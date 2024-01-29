@@ -3,73 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Opret Konto og Log Ind</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 50px;
-        }
-
-        form {
-            display: inline-block;
-            text-align: left;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        #loginForm {
-            display: inline-block;
-        }
-
-        #gamePage {
-            display: none;
-        }
-
-        /* Styling til tic-tac-toe spillet */
-        #ticTacToe {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-        }
-
-        .row {
-            display: flex;
-        }
-
-        .cell {
-            width: 50px;
-            height: 50px;
-            border: 1px solid #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 20px;
-            cursor: pointer;
-        }
-    </style>
+    <title>Spil og Koder</title>
 </head>
 <body>
-    <h1>Vælg en handling</h1>
+    <h1>Spil og Koder</h1>
 
-    <button onclick="showForm('signupForm')">Opret Konto</button>
-    <button onclick="showForm('loginForm')">Log Ind</button>
-
-    <!-- Opret Konto Formular -->
-    <form id="signupForm">
-        <h2>Opret en konto</h2>
-        <label for="newUsername">Nyt Brugernavn:</label>
-        <input type="text" id="newUsername" name="newUsername" required><br>
-
-        <label for="newPassword">Nyt Password:</label>
-        <input type="password" id="newPassword" name="newPassword" required><br>
-
-        <button type="button" onclick="signup()">Opret Konto</button>
-    </form>
-
-    <!-- Log Ind Formular -->
-    <form id="loginForm">
+    <div id="loginForm">
         <h2>Log Ind</h2>
         <label for="username">Brugernavn:</label>
         <input type="text" id="username" name="username" required><br>
@@ -77,162 +16,98 @@
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required><br>
 
-        <button type="button" onclick="login()">Log Ind</button>
-    </form>
+        <button onclick="login()">Log Ind</button>
+    </div>
 
-    <!-- Spil Side -->
-    <div id="gamePage">
+    <div id="gamePage" style="display: none;">
         <h2>Indsæt dit eget spil her</h2>
         <textarea id="gameCode" rows="10" cols="50"></textarea><br>
         <button onclick="runGame()">Start Spil</button>
 
-        <!-- Tic-Tac-Toe spilområde -->
-        <div id="ticTacToe"></div>
+        <h2>Alle Koder</h2>
+        <ul id="allCodes"></ul>
     </div>
 
     <script>
-        var isLoggedIn = false;
-
-        function showForm(formId) {
-            // Skjul alle formularer
-            var forms = document.getElementsByTagName('form');
-            for (var i = 0; i < forms.length; i++) {
-                forms[i].style.display = 'none';
-            }
-
-            // Vis det valgte formular
-            document.getElementById(formId).style.display = 'inline-block';
-        }
-
-        function signup() {
-            var newUsername = document.getElementById('newUsername').value;
-            var newPassword = document.getElementById('newPassword').value;
-
-            // Simuler lagring af konto (i en faktisk applikation ville dette blive håndteret sikkert på serveren)
-            alert('Konto oprettet: ' + newUsername);
-
-            // Nulstil formular
-            document.getElementById('signupForm').reset();
-        }
-
         function login() {
-            var username = document.getElementById('username').value;
-            var password = document.getElementById('password').value;
-
-            // Simuler enkle autentiseringsdata (i en faktisk applikation ville dette blive håndteret sikkert på serveren)
-            var validCredentials = [
-                { username: 'user1', password: 'password1' },
-                { username: 'user2', password: 'password2' },
-                // Tilføj flere brugernavne og adgangskoder efter behov
-            ];
-
-            var user = validCredentials.find(cred => cred.username === username && cred.password === password);
-
-            if (user) {
-                alert('Velkommen, ' + username + '!');
-                // Vis spilsiden efter succesfuld login
-                isLoggedIn = true;
-                document.getElementById('gamePage').style.display = 'block';
-
-                // Start tic-tac-toe spillet
-                renderTicTacToe();
-            } else {
-                alert('Fejl brugernavn eller adgangskode. Prøv igen.');
-            }
-
-            // Nulstil formular
-            document.getElementById('loginForm').reset();
+            // Implementer login-logik her
+            // Efter succesfuld login, skift visningen fra loginForm til gamePage
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('gamePage').style.display = 'block';
         }
 
         function runGame() {
-            if (isLoggedIn) {
-                var gameCode = document.getElementById('gameCode').value;
-                // Evaluer spilkoden (advarsel: evaluerer brugerinput kan være usikkert)
-                try {
-                    eval(gameCode);
-                } catch (error) {
-                    console.error('Fejl under kørsel af spil:', error);
-                }
-            } else {
-                alert('Du skal logge ind for at spille.');
-            }
+            // Implementer spil-logik her
         }
 
-        // Tic-Tac-Toe spilfunktioner
-        function renderTicTacToe() {
-            redom.mount('#ticTacToe', new TicTacToe());
+        // Hent alle koder fra serveren
+        async function getAllCodes() {
+            const response = await fetch('http://localhost:3000/getAllCodes');
+            const codes = await response.json();
+
+            const allCodesList = document.getElementById('allCodes');
+            allCodesList.innerHTML = '';
+
+            codes.forEach(code => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${code.username}: ${code.code}`;
+                allCodesList.appendChild(listItem);
+            });
         }
 
-        // Tic-Tac-Toe klasse baseret på Redom
-        class TicTacToe {
-            constructor() {
-                this.board = ['', '', '', '', '', '', '', '', ''];
-                this.currentPlayer = 'X';
-                this.createElements();
-            }
-
-            createElements() {
-                this.el = redom.el('div#ticTacToe');
-                this.rows = Array.from({ length: 3 }, () => redom.el('div.row'));
-                this.cells = Array.from({ length: 9 }, (_, index) => redom.el('div.cell', { onclick: () => this.handleClick(index) }));
-                this.render();
-            }
-
-            render() {
-                redom.append(this.el, ...this.rows);
-                this.rows.forEach((row, rowIndex) => redom.append(row, ...this.cells.slice(rowIndex * 3, (rowIndex + 1) * 3)));
-                redom.update(this.el, this.cells.map((cell, index) => {
-                    cell.textContent = this.board[index];
-                    return cell;
-                }));
-            }
-
-            handleClick(index) {
-                if (this.board[index] === '' && !this.isGameOver()) {
-                    this.board[index] = this.currentPlayer;
-                    this.render();
-                    this.switchPlayer();
-                    this.checkWinner();
-                }
-            }
-
-            switchPlayer() {
-                this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
-            }
-
-            isGameOver() {
-                return this.board.every((cell) => cell !== '');
-            }
-
-            checkWinner() {
-                const winPatterns = [
-                    [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rader
-                    [0, 3, 6], [1, 4, 7], [2, 5, 8], // Kolonner
-                    [0, 4, 8], [2, 4, 6]             // Diagonaler
-                ];
-
-                for (const pattern of winPatterns) {
-                    const [a, b, c] = pattern;
-                    if (this.board[a] !== '' && this.board[a] === this.board[b] && this.board[a] === this.board[c]) {
-                        alert(`Spiller ${this.board[a]} har vundet!`);
-                        this.resetGame();
-                        return;
-                    }
-                }
-
-                // Sjekk uavgjort
-                if (!this.board.includes('')) {
-                    alert('Uavgjort! Ingen vinner.');
-                    this.resetGame();
-                }
-            }
-
-            resetGame() {
-                this.board.fill('');
-                this.currentPlayer = 'X';
-                this.render();
-            }
-        }
+        // Hent koder ved siden af spilsiden
+        getAllCodes();
     </script>
 </body>
 </html>
+
+
+
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+
+const app = express();
+const port = 3000;
+
+app.use(bodyParser.json());
+
+mongoose.connect('mongodb://localhost:27017/spilogkoder', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const codeSchema = new mongoose.Schema({
+    username: String,
+    code: String,
+});
+
+const Code = mongoose.model('Code', codeSchema);
+
+app.use(express.static('public'));
+
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+});
+
+app.post('/saveCode', async (req, res) => {
+    const { username, code } = req.body;
+
+    try {
+        const newCode = new Code({ username, code });
+        await newCode.save();
+        res.status(200).send('Kode gemt.');
+    } catch (error) {
+        res.status(500).send('Fejl ved gemning af kode.');
+    }
+});
+
+app.get('/getAllCodes', async (req, res) => {
+    try {
+        const allCodes = await Code.find({}, 'username code');
+        res.status(200).json(allCodes);
+    } catch (error) {
+        res.status(500).send('Fejl ved hentning af koder.');
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Server kører på http://localhost:${port}`);
+});
