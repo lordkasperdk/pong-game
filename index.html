@@ -1,56 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brugerregistrering</title>
-</head>
-<body>
-    <h1>Brugerregistrering</h1>
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 
-    <div>
-        <label for="username">Brugernavn:</label>
-        <input type="text" id="username" name="username" required><br>
-        
-        <button onclick="registerUser()">Opret Konto</button>
-    </div>
+const app = express();
+const port = 3000;
 
-    <h2>Oprettede Brugere</h2>
-    <ul id="userList"></ul>
+app.use(bodyParser.json());
 
-    <script>
-        // Simuleret database med oprettede brugere
-        const users = [];
+mongoose.connect('mongodb://localhost:27017/mydatabase', { useNewUrlParser: true, useUnifiedTopology: true });
 
-        function registerUser() {
-            const username = document.getElementById('username').value;
+const userSchema = new mongoose.Schema({
+    username: String,
+    password: String,
+});
 
-            // Tjek om brugernavnet allerede eksisterer
-            if (users.includes(username)) {
-                alert('Brugernavnet eksisterer allerede. Vælg et andet.');
-            } else {
-                // Tilføj brugernavnet til listen
-                users.push(username);
-                alert('Bruger oprettet: ' + username);
+const User = mongoose.model('User', userSchema);
 
-                // Opdater brugerlisten
-                displayUsers();
-            }
+app.post('/register', async (req, res) => {
+    const { username, password } = req.body;
 
-            // Nulstil inputfeltet
-            document.getElementById('username').value = '';
+    try {
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            res.status(400).send('Brugernavnet eksisterer allerede. Vælg et andet.');
+        } else {
+            const newUser = new User({ username, password });
+            await newUser.save();
+            res.status(200).send('Bruger oprettet.');
         }
+    } catch (error) {
+        res.status(500).send('Fejl ved oprettelse af bruger.');
+    }
+});
 
-        function displayUsers() {
-            const userList = document.getElementById('userList');
-            userList.innerHTML = '';
+app.get('/users', async (req, res) => {
+    try {
+        const users = await User.find({}, 'username');
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).send('Fejl ved hentning af brugere.');
+    }
+});
 
-            users.forEach(user => {
-                const listItem = document.createElement('li');
-                listItem.textContent = user;
-                userList.appendChild(listItem);
-            });
-        }
-    </script>
-</body>
-</html>
+app.listen(port, () => {
+    console.log(`Server kører på http://localhost:${port}`);
+});
