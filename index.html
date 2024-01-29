@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Checker</title>
+    <title>Registrering og Ping Pong</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,55 +16,80 @@
             text-align: left;
         }
 
-        p {
-            margin-top: 20px;
-            font-weight: bold;
-        }
-
-        .success {
-            color: green;
-        }
-
-        .error {
-            color: red;
+        canvas {
+            border: 1px solid black;
         }
     </style>
 </head>
 <body>
-    <h1>Email Checker</h1>
+    <h1>Opprett en konto</h1>
 
-    <?php
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Hent e-postadressen fra skjemaet
-        $user_email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+    <form action="javascript:void(0);" onsubmit="startPingPong();">
+        <label for="username">Brukernavn:</label>
+        <input type="text" id="username" name="username" required><br>
 
-        // Angi den bestemte e-postadressen du vil sjekke mot
-        $allowed_email = 'kaspernyholm96@gmail.com';
+        <label for="password">Passord:</label>
+        <input type="password" id="password" name="password" required><br>
 
-        // Sjekk om e-postadressen er lik den tillatte e-postadressen
-        if ($user_email === $allowed_email) {
-            echo "<p class='success'>Tilgang godkjent. Liste over alle som har prøvd:</p>";
-
-            // Hent lagret informasjon (kan være fra en database)
-            // Her er det en enkel hardcoded liste
-            $attempted_emails = ['user1@example.com', 'user2@example.com', 'user3@example.com'];
-
-            // Vis alle forsøkte e-postadresser
-            echo "<ul>";
-            foreach ($attempted_emails as $attempted_email) {
-                echo "<li>$attempted_email</li>";
-            }
-            echo "</ul>";
-        } else {
-            echo "<p class='error'>Du har ikke tilgang.</p>";
-        }
-    }
-    ?>
-
-    <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
-        <label for="email">Skriv inn din e-postadresse:</label>
-        <input type="email" id="email" name="email" required>
-        <button type="submit">Sjekk</button>
+        <button type="submit">Opprett konto og spill Ping Pong</button>
     </form>
+
+    <h2 id="welcomeMessage" style="display: none;"></h2>
+
+    <canvas id="pingpongCanvas" width="480" height="320" style="display: none;"></canvas>
+
+    <script>
+        function startPingPong() {
+            var username = document.getElementById('username').value;
+
+            // Skjul registreringsskjemaet
+            document.querySelector('form').style.display = 'none';
+
+            // Vis velkomstmelding
+            document.getElementById('welcomeMessage').innerText = 'Velkommen til Ping Pong Game, ' + username + '!';
+            document.getElementById('welcomeMessage').style.display = 'block';
+
+            // Vis Ping Pong-spillet
+            document.getElementById('pingpongCanvas').style.display = 'block';
+
+            var canvas = document.getElementById("pingpongCanvas");
+            var ctx = canvas.getContext("2d");
+
+            // Ping Pong logikk (en enkel versjon)
+            var x = canvas.width / 2;
+            var y = canvas.height - 30;
+            var dx = 2;
+            var dy = -2;
+
+            function drawBall() {
+                ctx.beginPath();
+                ctx.arc(x, y, 10, 0, Math.PI * 2);
+                ctx.fillStyle = "#0095DD";
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawBall();
+
+                x += dx;
+                y += dy;
+
+                // Enkel grensekontroll
+                if (x + dx > canvas.width - 10 || x + dx < 10) {
+                    dx = -dx;
+                }
+
+                if (y + dy > canvas.height - 10 || y + dy < 10) {
+                    dy = -dy;
+                }
+
+                requestAnimationFrame(draw);
+            }
+
+            draw(); // Start animasjonen
+        }
+    </script>
 </body>
 </html>
