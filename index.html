@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrering og Ping Pong</title>
+    <title>Login og Hemmelig Knapp</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,79 +16,69 @@
             text-align: left;
         }
 
-        canvas {
-            border: 1px solid black;
+        #secretButton {
+            display: none;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <h1>Opprett en konto</h1>
+    <h1>Opprett en konto eller Logg inn</h1>
 
-    <form action="javascript:void(0);" onsubmit="startPingPong();">
+    <form id="loginForm">
         <label for="username">Brukernavn:</label>
         <input type="text" id="username" name="username" required><br>
 
         <label for="password">Passord:</label>
         <input type="password" id="password" name="password" required><br>
 
-        <button type="submit">Opprett konto og spill Ping Pong</button>
+        <button type="button" onclick="login()">Logg inn</button>
     </form>
 
-    <h2 id="welcomeMessage" style="display: none;"></h2>
+    <div id="welcomeMessage" style="display: none;"></div>
 
-    <canvas id="pingpongCanvas" width="480" height="320" style="display: none;"></canvas>
+    <button id="secretButton" onclick="showLoggedUsers()">Vis Hvem som er Logget Inn</button>
 
     <script>
-        function startPingPong() {
+        var loggedInUsers = [];
+
+        function login() {
             var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
 
-            // Skjul registreringsskjemaet
-            document.querySelector('form').style.display = 'none';
+            // Simuler enkle autentiseringsdata (i en virkelig applikasjon ville dette bli håndtert sikkert på serveren)
+            var validCredentials = [
+                { username: 'user1', password: 'password1' },
+                { username: 'user2', password: 'password2' },
+                // Legg til flere brukernavn og passord etter behov
+            ];
 
-            // Vis velkomstmelding
-            document.getElementById('welcomeMessage').innerText = 'Velkommen til Ping Pong Game, ' + username + '!';
-            document.getElementById('welcomeMessage').style.display = 'block';
+            var user = validCredentials.find(cred => cred.username === username && cred.password === password);
 
-            // Vis Ping Pong-spillet
-            document.getElementById('pingpongCanvas').style.display = 'block';
+            if (user) {
+                // Legg til brukeren i listen over innloggede brukere
+                loggedInUsers.push(username);
 
-            var canvas = document.getElementById("pingpongCanvas");
-            var ctx = canvas.getContext("2d");
+                // Skjul påloggingsformularet
+                document.getElementById('loginForm').style.display = 'none';
 
-            // Ping Pong logikk (en enkel versjon)
-            var x = canvas.width / 2;
-            var y = canvas.height - 30;
-            var dx = 2;
-            var dy = -2;
+                // Vis velkomstmelding
+                document.getElementById('welcomeMessage').innerText = 'Velkommen, ' + username + '!';
+                document.getElementById('welcomeMessage').style.display = 'block';
 
-            function drawBall() {
-                ctx.beginPath();
-                ctx.arc(x, y, 10, 0, Math.PI * 2);
-                ctx.fillStyle = "#0095DD";
-                ctx.fill();
-                ctx.closePath();
+                // Vis den hemmelige knappen
+                document.getElementById('secretButton').style.display = 'inline-block';
+            } else {
+                alert('Feil brukernavn eller passord. Prøv igjen.');
             }
+        }
 
-            function draw() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                drawBall();
-
-                x += dx;
-                y += dy;
-
-                // Enkel grensekontroll
-                if (x + dx > canvas.width - 10 || x + dx < 10) {
-                    dx = -dx;
-                }
-
-                if (y + dy > canvas.height - 10 || y + dy < 10) {
-                    dy = -dy;
-                }
-
-                requestAnimationFrame(draw);
-            }
-
-            draw(); // Start animasjonen
+        function showLoggedUsers() {
+            alert('Innloggede brukere: ' + loggedInUsers.join(', '));
         }
     </script>
 </body>
