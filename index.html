@@ -1,47 +1,244 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #111;
+      color: #fff;
+    }
 
-const app = express();
-const port = 3000;
+    .game-container {
+      position: relative;
+      width: 600px;
+      height: 400px;
+      border: 2px solid #fff;
+      overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+    }
 
-app.use(bodyParser.json());
+    .pong {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
 
-mongoose.connect('mongodb://localhost:27017/mydatabase', { useNewUrlParser: true, useUnifiedTopology: true });
+    .ball {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-color: #fff;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
 
-const userSchema = new mongoose.Schema({
-    username: String,
-    password: String,
-});
+    .paddle {
+      position: absolute;
+      width: 20px;
+      height: 100px;
+    }
 
-const User = mongoose.model('User', userSchema);
+    #leftPaddle {
+      left: 0;
+      background-color: red;
+    }
 
-app.post('/register', async (req, res) => {
-    const { username, password } = req.body;
+    #rightPaddle {
+      right: 0;
+      background-color: blue;
+    }
 
-    try {
-        const existingUser = await User.findOne({ username });
-        if (existingUser) {
-            res.status(400).send('Brugernavnet eksisterer allerede. Vælg et andet.');
-        } else {
-            const newUser = new User({ username, password });
-            await newUser.save();
-            res.status(200).send('Bruger oprettet.');
+    .score-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .score {
+      display: flex;
+      align-items: center;
+      font-size: 24px;
+    }
+
+    #leftScore {
+      margin-right: 10px;
+      color: red;
+    }
+
+    #rightScore {
+      margin-left: 10px;
+      color: blue;
+    }
+
+    .info-container {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .info {
+      font-size: 18px;
+    }
+  </style>
+  <title>Pong Game</title>
+</head>
+<body>
+  <div class="game-container">
+    <div class="pong">
+      <div class="ball"></div>
+      <div class="paddle" id="leftPaddle"></div>
+      <div class="paddle" id="rightPaddle"></div>
+    </div>
+  </div>
+  <div class="score-container">
+    <div class="score">
+      <span id="leftScore">0</span> - <span id="rightScore">0</span>
+    </div>
+  </div>
+  <div class="info-container">
+    <div class="info">
+      Press 'M' to toggle game mode (training / Standard)
+    </div>
+  </div>
+  <script>
+    const ball = document.querySelector('.ball');
+    const leftPaddle = document.getElementById('leftPaddle');
+    const rightPaddle = document.getElementById('rightPaddle');
+    const leftScoreDisplay = document.getElementById('leftScore');
+    const rightScoreDisplay = document.getElementById('rightScore');
+    const infoContainer = document.querySelector('.info-container');
+    
+    let ballX = 300;
+    let ballY = 200;
+    let ballSpeedX = 5;
+    let ballSpeedY = 5;
+    let leftPaddleY = 150;
+    let rightPaddleY = 150;
+    let leftPaddleSpeed = 0;
+    let rightPaddleSpeed = 0;
+    let leftScore = 0;
+    let rightScore = 0;
+    let gameMode = 'Standard'; // Default game mode
+    
+    function update() {
+      ballX += ballSpeedX;
+      ballY += ballSpeedY;
+
+      // Ball collision with walls
+      if (ballY < 0 || ballY > 380) {
+        ballSpeedY = -ballSpeedY;
+      }
+
+      // Ball collision with paddles
+      if (
+        (ballX <= 20 && ballY > leftPaddleY && ballY < leftPaddleY + 100) ||
+        (ballX >= 560 && ballY > rightPaddleY && ballY < rightPaddleY + 100)
+      ) {
+        ballSpeedX = -ballSpeedX;
+      }
+
+      // Ball out of bounds
+      if (ballX < 0 && gameMode === 'Standard') {
+        rightScore++;
+        if (rightScore >= 10) {
+          alert("Blue player wins!");
+          rightScore = 0;
+          leftScore = 0;
         }
-    } catch (error) {
-        res.status(500).send('Fejl ved oprettelse af bruger.');
-    }
-});
+        resetBall();
+      } else if (ballX > 600 && gameMode === 'Standard') {
+        leftScore++;
+        if (leftScore >= 10) {
+          alert("Red player wins!");
+          rightScore = 0;
+          leftScore = 0;
+        }
+        resetBall();
+      } else if (gameMode === 'training' && (ballX < 0 || ballX > 600)) {
+        resetBall();
+      }
 
-app.get('/users', async (req, res) => {
-    try {
-        const users = await User.find({}, 'username');
-        res.status(200).json(users);
-    } catch (error) {
-        res.status(500).send('Fejl ved hentning af brugere.');
-    }
-});
+      ball.style.left = ballX + 'px';
+      ball.style.top = ballY + 'px';
 
-app.listen(port, () => {
-    console.log(`Server kører på http://localhost:${port}`);
-});
+      movePaddles();
+      updateScore();
+      requestAnimationFrame(update);
+    }
+
+    function resetBall() {
+      ballX = 300;
+      ballY = 200;
+    }
+
+    function movePaddles() {
+      leftPaddleY += leftPaddleSpeed;
+      rightPaddleY += rightPaddleSpeed;
+
+      // Ensure paddles stay within bounds
+      leftPaddleY = Math.max(Math.min(leftPaddleY, 300), 0);
+      rightPaddleY = Math.max(Math.min(rightPaddleY, 300), 0);
+
+      leftPaddle.style.top = leftPaddleY + 'px';
+      rightPaddle.style.top = rightPaddleY + 'px';
+    }
+
+    function updateScore() {
+      leftScoreDisplay.textContent = leftScore;
+      rightScoreDisplay.textContent = rightScore;
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'w') {
+        leftPaddleSpeed = -5;
+      } else if (event.key === 's') {
+        leftPaddleSpeed = 5;
+      }
+    });
+
+    document.addEventListener('keyup', (event) => {
+      if (event.key === 'w' || event.key === 's') {
+        leftPaddleSpeed = 0;
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowUp') {
+        rightPaddleSpeed = -5;
+      } else if (event.key === 'ArrowDown') {
+        rightPaddleSpeed = 5;
+      }
+    });
+
+    document.addEventListener('keyup', (event) => {
+      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        rightPaddleSpeed = 0;
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'm' || event.key === 'M') {
+        toggleGameMode();
+      }
+    });
+
+    function toggleGameMode() {
+      gameMode = gameMode === 'Standard' ? 'training' : 'Standard';
+      infoContainer.innerHTML = `<div class="info">Game Mode: ${gameMode}</div>`;
+    }
+
+    update();
+  </script>
+</body>
+</html>
+
+
