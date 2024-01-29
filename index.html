@@ -3,111 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spil og Koder</title>
+    <title>Brugerregistrering</title>
 </head>
 <body>
-    <h1>Spil og Koder</h1>
+    <h1>Brugerregistrering</h1>
 
-    <div id="loginForm">
-        <h2>Log Ind</h2>
+    <div>
         <label for="username">Brugernavn:</label>
         <input type="text" id="username" name="username" required><br>
-
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br>
-
-        <button onclick="login()">Log Ind</button>
+        
+        <button onclick="registerUser()">Opret Konto</button>
     </div>
 
-    <div id="gamePage" style="display: none;">
-        <h2>Indsæt dit eget spil her</h2>
-        <textarea id="gameCode" rows="10" cols="50"></textarea><br>
-        <button onclick="runGame()">Start Spil</button>
-
-        <h2>Alle Koder</h2>
-        <ul id="allCodes"></ul>
-    </div>
+    <h2>Oprettede Brugere</h2>
+    <ul id="userList"></ul>
 
     <script>
-        function login() {
-            // Implementer login-logik her
-            // Efter succesfuld login, skift visningen fra loginForm til gamePage
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('gamePage').style.display = 'block';
+        // Simuleret database med oprettede brugere
+        const users = [];
+
+        function registerUser() {
+            const username = document.getElementById('username').value;
+
+            // Tjek om brugernavnet allerede eksisterer
+            if (users.includes(username)) {
+                alert('Brugernavnet eksisterer allerede. Vælg et andet.');
+            } else {
+                // Tilføj brugernavnet til listen
+                users.push(username);
+                alert('Bruger oprettet: ' + username);
+
+                // Opdater brugerlisten
+                displayUsers();
+            }
+
+            // Nulstil inputfeltet
+            document.getElementById('username').value = '';
         }
 
-        function runGame() {
-            // Implementer spil-logik her
-        }
+        function displayUsers() {
+            const userList = document.getElementById('userList');
+            userList.innerHTML = '';
 
-        // Hent alle koder fra serveren
-        async function getAllCodes() {
-            const response = await fetch('http://localhost:3000/getAllCodes');
-            const codes = await response.json();
-
-            const allCodesList = document.getElementById('allCodes');
-            allCodesList.innerHTML = '';
-
-            codes.forEach(code => {
+            users.forEach(user => {
                 const listItem = document.createElement('li');
-                listItem.textContent = `${code.username}: ${code.code}`;
-                allCodesList.appendChild(listItem);
+                listItem.textContent = user;
+                userList.appendChild(listItem);
             });
         }
-
-        // Hent koder ved siden af spilsiden
-        getAllCodes();
     </script>
 </body>
 </html>
-
-
-
-const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-
-const app = express();
-const port = 3000;
-
-app.use(bodyParser.json());
-
-mongoose.connect('mongodb://localhost:27017/spilogkoder', { useNewUrlParser: true, useUnifiedTopology: true });
-
-const codeSchema = new mongoose.Schema({
-    username: String,
-    code: String,
-});
-
-const Code = mongoose.model('Code', codeSchema);
-
-app.use(express.static('public'));
-
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/public/index.html');
-});
-
-app.post('/saveCode', async (req, res) => {
-    const { username, code } = req.body;
-
-    try {
-        const newCode = new Code({ username, code });
-        await newCode.save();
-        res.status(200).send('Kode gemt.');
-    } catch (error) {
-        res.status(500).send('Fejl ved gemning af kode.');
-    }
-});
-
-app.get('/getAllCodes', async (req, res) => {
-    try {
-        const allCodes = await Code.find({}, 'username code');
-        res.status(200).json(allCodes);
-    } catch (error) {
-        res.status(500).send('Fejl ved hentning af koder.');
-    }
-});
-
-app.listen(port, () => {
-    console.log(`Server kører på http://localhost:${port}`);
-});
