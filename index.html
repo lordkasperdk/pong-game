@@ -4,6 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Email Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+
+        form {
+            display: inline-block;
+            text-align: left;
+        }
+
+        p {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
 </head>
 <body>
     <h1>Email Checker</h1>
@@ -18,7 +43,7 @@
 
         // Sjekk om e-postadressen er lik den tillatte e-postadressen
         if ($user_email === $allowed_email) {
-            echo "<p>Du har tilgang. Liste over alle som har prøvd:</p>";
+            echo "<p class='success'>Tilgang godkjent. Liste over alle som har prøvd:</p>";
 
             // Hent lagret informasjon (kan være fra en database)
             // Her er det en enkel hardcoded liste
@@ -31,7 +56,7 @@
             }
             echo "</ul>";
         } else {
-            echo "<p>Du har ikke tilgang.</p>";
+            echo "<p class='error'>Du har ikke tilgang.</p>";
         }
     }
     ?>
