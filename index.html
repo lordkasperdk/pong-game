@@ -1,73 +1,244 @@
-// video_sharing_app.js
-
-// Frontend HTML
-const frontendHTML = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Sharing App</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #111;
+      color: #fff;
+    }
+
+    .game-container {
+      position: relative;
+      width: 600px;
+      height: 400px;
+      border: 2px solid #fff;
+      overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .pong {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .ball {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-color: #fff;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .paddle {
+      position: absolute;
+      width: 20px;
+      height: 100px;
+    }
+
+    #leftPaddle {
+      left: 0;
+      background-color: red;
+    }
+
+    #rightPaddle {
+      right: 0;
+      background-color: blue;
+    }
+
+    .score-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .score {
+      display: flex;
+      align-items: center;
+      font-size: 24px;
+    }
+
+    #leftScore {
+      margin-right: 10px;
+      color: red;
+    }
+
+    #rightScore {
+      margin-left: 10px;
+      color: blue;
+    }
+
+    .info-container {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .info {
+      font-size: 18px;
+    }
+  </style>
+  <title>Pong Game</title>
 </head>
 <body>
-    <div id="root"></div>
-    <script src="/bundle.js"></script> <!-- React bundle -->
+  <div class="game-container">
+    <div class="pong">
+      <div class="ball"></div>
+      <div class="paddle" id="leftPaddle"></div>
+      <div class="paddle" id="rightPaddle"></div>
+    </div>
+  </div>
+  <div class="score-container">
+    <div class="score">
+      <span id="leftScore">0</span> - <span id="rightScore">0</span>
+    </div>
+  </div>
+  <div class="info-container">
+    <div class="info">
+      Press 'M' to toggle game mode (training / Standard)
+    </div>
+  </div>
+  <script>
+    const ball = document.querySelector('.ball');
+    const leftPaddle = document.getElementById('leftPaddle');
+    const rightPaddle = document.getElementById('rightPaddle');
+    const leftScoreDisplay = document.getElementById('leftScore');
+    const rightScoreDisplay = document.getElementById('rightScore');
+    const infoContainer = document.querySelector('.info-container');
+    
+    let ballX = 300;
+    let ballY = 200;
+    let ballSpeedX = 5;
+    let ballSpeedY = 5;
+    let leftPaddleY = 150;
+    let rightPaddleY = 150;
+    let leftPaddleSpeed = 0;
+    let rightPaddleSpeed = 0;
+    let leftScore = 0;
+    let rightScore = 0;
+    let gameMode = 'Standard'; // Default game mode
+    
+    function update() {
+      ballX += ballSpeedX;
+      ballY += ballSpeedY;
+
+      // Ball collision with walls
+      if (ballY < 0 || ballY > 380) {
+        ballSpeedY = -ballSpeedY;
+      }
+
+      // Ball collision with paddles
+      if (
+        (ballX <= 20 && ballY > leftPaddleY && ballY < leftPaddleY + 100) ||
+        (ballX >= 560 && ballY > rightPaddleY && ballY < rightPaddleY + 100)
+      ) {
+        ballSpeedX = -ballSpeedX;
+      }
+
+      // Ball out of bounds
+      if (ballX < 0 && gameMode === 'Standard') {
+        rightScore++;
+        if (rightScore >= 10) {
+          alert("Blue player wins!");
+          rightScore = 0;
+          leftScore = 0;
+        }
+        resetBall();
+      } else if (ballX > 600 && gameMode === 'Standard') {
+        leftScore++;
+        if (leftScore >= 10) {
+          alert("Red player wins!");
+          rightScore = 0;
+          leftScore = 0;
+        }
+        resetBall();
+      } else if (gameMode === 'training' && (ballX < 0 || ballX > 600)) {
+        resetBall();
+      }
+
+      ball.style.left = ballX + 'px';
+      ball.style.top = ballY + 'px';
+
+      movePaddles();
+      updateScore();
+      requestAnimationFrame(update);
+    }
+
+    function resetBall() {
+      ballX = 300;
+      ballY = 200;
+    }
+
+    function movePaddles() {
+      leftPaddleY += leftPaddleSpeed;
+      rightPaddleY += rightPaddleSpeed;
+
+      // Ensure paddles stay within bounds
+      leftPaddleY = Math.max(Math.min(leftPaddleY, 300), 0);
+      rightPaddleY = Math.max(Math.min(rightPaddleY, 300), 0);
+
+      leftPaddle.style.top = leftPaddleY + 'px';
+      rightPaddle.style.top = rightPaddleY + 'px';
+    }
+
+    function updateScore() {
+      leftScoreDisplay.textContent = leftScore;
+      rightScoreDisplay.textContent = rightScore;
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'w') {
+        leftPaddleSpeed = -5;
+      } else if (event.key === 's') {
+        leftPaddleSpeed = 5;
+      }
+    });
+
+    document.addEventListener('keyup', (event) => {
+      if (event.key === 'w' || event.key === 's') {
+        leftPaddleSpeed = 0;
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowUp') {
+        rightPaddleSpeed = -5;
+      } else if (event.key === 'ArrowDown') {
+        rightPaddleSpeed = 5;
+      }
+    });
+
+    document.addEventListener('keyup', (event) => {
+      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        rightPaddleSpeed = 0;
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'm' || event.key === 'M') {
+        toggleGameMode();
+      }
+    });
+
+    function toggleGameMode() {
+      gameMode = gameMode === 'Standard' ? 'training' : 'Standard';
+      infoContainer.innerHTML = `<div class="info">Game Mode: ${gameMode}</div>`;
+    }
+
+    update();
+  </script>
 </body>
 </html>
-`;
 
-// Backend (Node.js med Express.js)
-const express = require('express');
-const mongoose = require('mongoose');
-const multer = require('multer');
-const path = require('path');
-const { createProxyMiddleware } = require('http-proxy-middleware');
 
-// Opret Express-app
-const app = express();
-
-// Middleware
-app.use(express.json());
-
-// Databaseforbindelse
-mongoose.connect('mongodb://localhost:27017/video-sharing', { useNewUrlParser: true, useUnifiedTopology: true });
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-
-// Multer konfiguration til håndtering af filuploads
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-});
-const upload = multer({ storage: storage });
-
-// Brugeroprettelse endpoint
-app.post('/api/users', async (req, res) => {
-    // Logik til brugeroprettelse
-});
-
-// Video-upload endpoint
-app.post('/api/videos', upload.single('video'), async (req, res) => {
-    // Logik til video-upload
-});
-
-// Proxy til API-anmodninger
-app.use('/api', createProxyMiddleware({ target: 'http://localhost:5000', changeOrigin: true }));
-
-// Server statiske filer (frontend build)
-app.use(express.static(path.join(__dirname, 'client/build')));
-
-// Returner frontend HTML
-app.get('/', (req, res) => {
-    res.send(frontendHTML);
-});
-
-// Start serveren
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
